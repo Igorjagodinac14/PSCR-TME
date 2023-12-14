@@ -1,6 +1,7 @@
 #include "Vec3D.h"
 #include "Rayon.h"
 #include "Scene.h"
+#include "Pool.h"
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -126,7 +127,7 @@ int main () {
 	Color * pixels = new Color[scene.getWidth() * scene.getHeight()];
 
 	// pour chaque pixel, calculer sa couleur
-	for (int x =0 ; x < scene.getWidth() ; x++) {
+	/*for (int x =0 ; x < scene.getWidth() ; x++) {
 		for (int  y = 0 ; y < scene.getHeight() ; y++) {
 			// le point de l'ecran par lequel passe ce rayon
 			auto & screenPoint = screen[y][x];
@@ -149,8 +150,23 @@ int main () {
 			}
 
 		}
-	}
+	}*/
+	const int TAILLE_THREADS = 8;
+    const int JOB_NUMBER = scene.getWidth() + scene.getHeight();
 
+    Pool pool(15);
+    pool.start(TAILLE_THREADS);
+    Barrier bar(JOB_NUMBER);
+    for(int x = 0; x < scene.getWidth(); x++){
+        for(int y = 0; y < scene.getHeight(); y++){
+            pool.submit(new DrawJobBarrier(screen[y][x],pixels[y*scene.getHeight()+x],scene,lights, &bar));
+        }
+    }
+
+    bar.waitfor();
+    pool.stop();
+
+	
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 	    std::cout << "Total time "
 	              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()

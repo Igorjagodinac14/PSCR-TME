@@ -1,0 +1,8 @@
+Q1 : Il y a exacetement 566193 mots 
+
+Q2 : Voir code => 20333 mots différents
+
+Q3 : Voir code => War = 298 Peace = 114 Toto = 0
+
+Q4 : La complexité de cette algo est de O(n*log(n)).
+     On aurait pu utilisé une liste qui ce trouve dans la lib standard.
